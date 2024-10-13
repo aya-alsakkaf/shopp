@@ -1,20 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState, useEffect } from "react";
+import UserContext from "./src/context/UserContext";
+import Home from "./src/screens/Home";
+import { getToken } from "./src/api/storage";
+import { SafeAreaView } from "react-native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  const queryClient = new QueryClient();
+
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      setUser(token);
+    }
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <QueryClientProvider client={queryClient}>
+      <UserContext.Provider value={{ user, setUser }}>
+        <SafeAreaView style={{ flex: 1 }}>
+          <Home />
+        </SafeAreaView>
+      </UserContext.Provider>
+    </QueryClientProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
